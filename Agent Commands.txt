@@ -1,0 +1,3 @@
+-gui -agents Home:Project.HomeAgent();
+-container -agents Retailer1:Project.RetailerAgent("Melbourne Electricity");Retailer2:Project.RetailerAgent("Premium Electricity");Retailer3:Project.RetailerAgent("Clean Energy");
+-container -agents App1:Project.ApplicationAgent("Home");App2:Project.ApplicationAgent("Home");App3:Project.ApplicationAgent("Home");
