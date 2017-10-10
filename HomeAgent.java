@@ -25,6 +25,7 @@ import jade.lang.acl.MessageTemplate;
 public class HomeAgent extends Agent {
 	private Map<AID, String> retailerList = new HashMap<AID, String>();
 	private int usage;
+	private int fundings = 3000;
 	
 	protected void setup () {
 		
@@ -92,14 +93,25 @@ public class HomeAgent extends Agent {
 				ACLMessage msg = receive(msgTmp);
 				if (msg != null) {
 					if (msg.getConversationId().equals("application-usage")) {
-						// We got 3 application agents, so we check if we get all the usage from 3 agents or not
+						// We  now got 4 application agents, so we check if we get all the usage from 4 agents or not
+						// Which are 3 usage and 1 generation
 						// If yes, then the next time usage will be reset
-						if (appCnt == 3) {
+						if (appCnt == 4) {
 							appCnt = 0;
 							usage = 0;
 						}
 						System.out.println(msg.getSender().getLocalName() + " " + msg.getContent());
 						usage += Integer.parseInt(msg.getContent());
+						appCnt++;
+					}
+					else if (msg.getConversationId().equals("application-generation")) {
+
+						if (appCnt == 4) {
+							appCnt = 0;
+							usage = 0;
+						}
+						System.out.println(msg.getSender().getLocalName() + " " + msg.getContent());
+						usage -= Integer.parseInt(msg.getContent());
 						appCnt++;
 					}
 					else {
@@ -121,7 +133,11 @@ public class HomeAgent extends Agent {
 		addBehaviour(new TickerBehaviour(this, 15000) {
 			protected void onTick() {
 				if (!retailerList.isEmpty()) {
-					myAgent.addBehaviour(new StartBuyingRequest());
+					if(usage >0){
+						myAgent.addBehaviour(new StartBuyingRequest());
+					}else{
+						myAgent.addBehaviour(new StartSellingRequest());
+					}
 				}
 				else {
 					System.out.println("Cannot find any retailers!");
@@ -140,20 +156,247 @@ public class HomeAgent extends Agent {
 		private int buyingQty = usage;
 		
 		public void action() {
+			//now we have a funding check, if fundings higher than 1000, it will keep the regular buy, but if not
+			//it will try to ask for a better price
+			if(fundings >1000){
+				switch (step) {
+				case 0:
+					System.out.println(getLocalName() + " sent requests to retailer agents");
+					// Send the cfp message to all retailers
+					ACLMessage cfpMsg = new ACLMessage(ACLMessage.CFP);
+					for (AID retailer : retailerList.keySet()) {
+						cfpMsg.addReceiver(retailer);
+					}
+					cfpMsg.setContent(String.valueOf(buyingQty));
+					cfpMsg.setConversationId("energy-trade");
+					cfpMsg.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
+					myAgent.send(cfpMsg);
+					// Prepare the message template to get proposals
+					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"),
+											MessageTemplate.MatchInReplyTo(cfpMsg.getReplyWith())); // detect different retailers' reply by unique generated value before with time stamp
+					step = 1;
+					break;
+				case 1:
+					// Receive all the proposals from retailer agents
+					// We assume that all retailers are happy to propose their products (No point to refuse customers)
+					ACLMessage response = myAgent.receive(mt);
+					if (response != null) {
+						// Response received
+						if(response.getPerformative() == ACLMessage.PROPOSE) {
+							// Extract this offer information
+							int price = Integer.parseInt(response.getContent());
+							if (bestRetailer == null || price < bestPrice) {
+								// This is the best offer at the moment
+								bestPrice = price;
+								bestRetailer = response.getSender();
+							}
+							System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
+						}
+						responsesCnt++;
+						// Check if receive all responses
+						if (responsesCnt == retailerList.size()) {
+							// Start the next step
+							step = 2;
+						}
+						
+						/** Do something when the best price is not even acceptable
+						*	Then set the step = 2 (the previous step = 2 is for basic implementation, further improvement might change it)
+						*	Might need more than 4 step as initial setup
+						*	The pricing strategies will start from here
+						*/
+					}
+					else {
+						block();
+					}
+					break;
+				case 2:
+					// Send the purchase order to the best retailer
+					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+					order.addReceiver(bestRetailer);
+					order.setContent(String.valueOf(buyingQty));
+					order.setConversationId("energy-trade");
+					order.setReplyWith("order" + System.currentTimeMillis());
+					myAgent.send(order);
+					// Set a new template to get the purchase order reply
+					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"), 
+											MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+					step = 3;
+					
+					System.out.println(getLocalName() + " accept the offer of " + bestRetailer.getLocalName());
+
+					break;
+				case 3:
+					// Receive the purchase confirmation from the retailer and finish the trade
+					response = myAgent.receive(mt);
+					if (response != null) {
+						// The response message received
+						if (response.getPerformative() == ACLMessage.CONFIRM) {
+							// Purchased successfully
+							System.out.println(buyingQty + " energy units have been successfully bought from " + response.getSender().getName());
+							System.out.println("Paid " + response.getContent());
+							fundings -=  Integer.parseInt(response.getContent()) ;
+						}
+						step = 4;
+					}
+					else {
+						block();
+					}
+					break;
+				}
+				
+				
+			}else{
+				// this part try to ask for a better price
+				switch (step) {
+				case 0:
+					System.out.println(getLocalName() + " sent negotiations requests to retailer agents because our fundings are low");
+					// Send the cfp message to all retailers
+					ACLMessage cfpMsg = new ACLMessage(ACLMessage.CFP);
+					for (AID retailer : retailerList.keySet()) {
+						cfpMsg.addReceiver(retailer);
+					}
+					cfpMsg.setContent(String.valueOf(buyingQty));
+					cfpMsg.setConversationId("better-energy-trade"); // we use new id ask for a better price
+					cfpMsg.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
+					myAgent.send(cfpMsg);
+					// Prepare the message template to get proposals
+					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("better-energy-trade"),
+											MessageTemplate.MatchInReplyTo(cfpMsg.getReplyWith())); // detect different retailers' reply by unique generated value before with time stamp
+					step = 1;
+					break;
+				case 1:
+					// Receive all the proposals from retailer agents
+					// We assume some retailers are happy to propose their products with better price(No point to refuse customers)
+					ACLMessage response = myAgent.receive(mt);
+					if (response != null) {
+						// Response received
+						if(response.getPerformative() == ACLMessage.PROPOSE) {
+							// Extract this offer information
+							int price = Integer.parseInt(response.getContent());
+							if (bestRetailer == null || price < bestPrice) {
+								// This is the best offer at the moment
+								bestPrice = price;
+								bestRetailer = response.getSender();
+							}
+							System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
+						}
+						responsesCnt++;
+						// Check if receive all responses
+						if (responsesCnt == retailerList.size()) {
+							// Start the next step
+							step = 2;
+						}
+						
+						/** Do something when the best price is not even acceptable
+						*	Then set the step = 2 (the previous step = 2 is for basic implementation, further improvement might change it)
+						*	Might need more than 4 step as initial setup
+						*	The pricing strategies will start from here
+						*/
+					}
+					// However if we don't have a retailer willing to provide a better price, we have to buy in normal way
+					else {
+						System.out.println(getLocalName() + " we are fail to make a negotiation");
+						ACLMessage cfpMsg = new ACLMessage(ACLMessage.CFP);
+						for (AID retailer : retailerList.keySet()) {
+							cfpMsg.addReceiver(retailer);
+						}
+						cfpMsg.setContent(String.valueOf(buyingQty));
+						cfpMsg.setConversationId("energy-trade");
+						cfpMsg.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
+						myAgent.send(cfpMsg);
+						// Prepare the message template to get proposals
+						mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"),
+												MessageTemplate.MatchInReplyTo(cfpMsg.getReplyWith()));
+						ACLMessage response = myAgent.receive(mt);
+						if (response != null) {
+							// Response received
+							if(response.getPerformative() == ACLMessage.PROPOSE) {
+								// Extract this offer information
+								int price = Integer.parseInt(response.getContent());
+								if (bestRetailer == null || price < bestPrice) {
+									// This is the best offer at the moment
+									bestPrice = price;
+									bestRetailer = response.getSender();
+								}
+								System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
+							}
+							responsesCnt++;
+							// Check if receive all responses
+							if (responsesCnt == retailerList.size()) {
+								// Start the next step
+								step = 2;
+							}
+						}
+					}
+					break;
+				case 2:
+					// Send the purchase order to the best retailer
+					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+					order.addReceiver(bestRetailer);
+					order.setContent(String.valueOf(buyingQty));
+					order.setConversationId("energy-trade");
+					order.setReplyWith("order" + System.currentTimeMillis());
+					myAgent.send(order);
+					// Set a new template to get the purchase order reply
+					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"), 
+											MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+					step = 3;
+					
+					System.out.println(getLocalName() + " accept the offer of " + bestRetailer.getLocalName());
+
+					break;
+				case 3:
+					// Receive the purchase confirmation from the retailer and finish the trade
+					response = myAgent.receive(mt);
+					if (response != null) {
+						// The response message received
+						if (response.getPerformative() == ACLMessage.CONFIRM) {
+							// Purchased successfully
+							System.out.println(buyingQty + " energy units have been successfully bought from " + response.getSender().getName());
+							System.out.println("Paid " + response.getContent());
+							fundings -=  Integer.parseInt(response.getContent()) ;
+						}
+						step = 4;
+					}
+					else {
+						block();
+					}
+					break;
+				}
+			}
+			
+		}
+		
+		@Override
+		public boolean done() {
+			return step == 4;
+		}
+	}
+	
+	// This class handle the whole Selling request process
+	private class StartSellingRequest extends Behaviour {
+		private AID bestRetailer;
+		private int bestPrice;
+		private int responsesCnt = 0;
+		private MessageTemplate mt;
+		private int step = 0;
+		private int SellingQty = Math.abs(usage);
+		
+		public void action{
 			switch (step) {
 			case 0:
-				System.out.println(getLocalName() + " sent requests to retailer agents");
+				System.out.println(getLocalName() + " sent selling energy to retalier requests to retailer agents");
 				// Send the cfp message to all retailers
 				ACLMessage cfpMsg = new ACLMessage(ACLMessage.CFP);
 				for (AID retailer : retailerList.keySet()) {
 					cfpMsg.addReceiver(retailer);
 				}
-				cfpMsg.setContent(String.valueOf(buyingQty));
-				cfpMsg.setConversationId("energy-trade");
+				cfpMsg.setContent(String.valueOf(SellingQty));
+				cfpMsg.setConversationId("energy-selling");
 				cfpMsg.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
 				myAgent.send(cfpMsg);
 				// Prepare the message template to get proposals
-				mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"),
+				mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-selling"),
 										MessageTemplate.MatchInReplyTo(cfpMsg.getReplyWith())); // detect different retailers' reply by unique generated value before with time stamp
 				step = 1;
 				break;
@@ -166,7 +409,7 @@ public class HomeAgent extends Agent {
 					if(response.getPerformative() == ACLMessage.PROPOSE) {
 						// Extract this offer information
 						int price = Integer.parseInt(response.getContent());
-						if (bestRetailer == null || price < bestPrice) {
+						if (bestRetailer == null || price > bestPrice) {
 							// This is the best offer at the moment
 							bestPrice = price;
 							bestRetailer = response.getSender();
@@ -180,11 +423,7 @@ public class HomeAgent extends Agent {
 						step = 2;
 					}
 					
-					/** Do something when the best price is not even acceptable
-					*	Then set the step = 2 (the previous step = 2 is for basic implementation, further improvement might change it)
-					*	Might need more than 4 step as initial setup
-					*	The pricing strategies will start from here
-					*/
+					
 				}
 				else {
 					block();
@@ -195,11 +434,11 @@ public class HomeAgent extends Agent {
 				ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 				order.addReceiver(bestRetailer);
 				order.setContent(String.valueOf(buyingQty));
-				order.setConversationId("energy-trade");
+				order.setConversationId("energy-selling");
 				order.setReplyWith("order" + System.currentTimeMillis());
 				myAgent.send(order);
 				// Set a new template to get the purchase order reply
-				mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"), 
+				mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-selling"), 
 										MessageTemplate.MatchInReplyTo(order.getReplyWith()));
 				step = 3;
 				
@@ -215,6 +454,7 @@ public class HomeAgent extends Agent {
 						// Purchased successfully
 						System.out.println(buyingQty + " energy units have been successfully bought from " + response.getSender().getName());
 						System.out.println("Paid " + response.getContent());
+						fundings +=  Integer.parseInt(response.getContent()) ;
 					}
 					step = 4;
 				}
@@ -225,9 +465,6 @@ public class HomeAgent extends Agent {
 			}
 		}
 		
-		@Override
-		public boolean done() {
-			return step == 4;
-		}
 	}
+	
 }
