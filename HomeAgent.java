@@ -214,7 +214,7 @@ public class HomeAgent extends Agent {
 					// a genotation step for get a better price
 					System.out.println(getLocalName() + " sent negotiations requests to retailer agents because our fundings are low");
 					// Send the cfp message to all retailers
-					ACLMessage cfpMsg1 = new ACLMessage(ACLMessage.CFP);
+					ACLMessage cfpMsg1 = new ACLMessage(ACLMessage.REQUEST);
 					for (AID retailer : retailerList.keySet()) {
 						cfpMsg1.addReceiver(retailer);
 					}
@@ -229,7 +229,7 @@ public class HomeAgent extends Agent {
 					ACLMessage response1 = myAgent.receive(mt);
 					if (response1 != null) {
 						// Response received
-						if(response1.getPerformative() == ACLMessage.PROPOSE) {
+						if(response1.getPerformative() == ACLMessage.AGREE) {
 							// Extract this offer information
 							int price = Integer.parseInt(response1.getContent());
 							if (bestRetailer == null || price < bestPrice) {
@@ -237,8 +237,13 @@ public class HomeAgent extends Agent {
 								bestPrice = price;
 								bestRetailer = response1.getSender();
 							}
-							
+							System.out.println("a agreement received:" + response1.getSender().getLocalName() + " with the price - " + price);
 						}
+						
+						if(response1.getPerformative() == ACLMessage.REFUSE) {
+							System.out.println("a DISagreement received:" + response1.getSender().getLocalName() );
+						}
+						
 						responsesCnt++;
 						// Check if receive all responses
 						if (responsesCnt == retailerList.size()) {
