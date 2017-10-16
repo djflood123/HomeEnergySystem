@@ -6,7 +6,7 @@ import jade.lang.acl.ACLMessage;
 import jade.core.behaviours.TickerBehaviour;
 import java.util.*;
 
-public class P extends Agent {
+public class PowerAgent extends Agent {
 	
 
 	private int powerGenerated;
