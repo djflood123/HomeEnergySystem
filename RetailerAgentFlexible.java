@@ -51,6 +51,7 @@ public class RetailerAgentFlexible extends Agent {
 		//TODO get price entered from user
 		private int price;
 		private int qty;
+		private double discount;
 		
 		public void action () {
 			ACLMessage msg = receive();
@@ -74,29 +75,21 @@ public class RetailerAgentFlexible extends Agent {
 					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
 				
-				//Check if receiving a reject message
+				//Check if proposal is NOT accepted
 				//If yes, send message back to home agent asking to enter new offer
-				
-				
-				if (msg.getPerformative() == ACLMessage.REJECT_PROPOSAL) {
+				if (msg.getPerformative() != ACLMessage.ACCEPT_PROPOSAL) {
 					System.out.println(getLocalName() + " rejected offer from " + msg.getSender().getName());			
 					
-					//TODO: receive new user entered price
-					int newprice;
-					
-					//if the new price is lower than price, we confirm the offer and accept
-					if (newprice < price) {
+					//receive new user entered price and give 10% discount
+					discount = (rnd.nextInt(11) + 90) / 100;
+					double newprice = price * discount;
 					
 						ACLMessage confirm = msg.createReply();
 						confirm.setPerformative(ACLMessage.CONFIRM);
 						confirm.setContent(String.valueOf(newprice * qty));
 						myAgent.send(confirm);
 						System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());	
-					}
 					
-					else {
-						//reset loop
-					}
 				}				
 				
 				// Check if receiving a accept message
