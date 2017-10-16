@@ -48,7 +48,7 @@ public class RetailerAgentFixed extends Agent {
 	
 	private class RequestProcessingServer extends CyclicBehaviour {
 		//price is a constant, as it is "fixed"
-		private final int price;
+		private final int price = 100;
 		private int qty;
 		
 		public void action () {
