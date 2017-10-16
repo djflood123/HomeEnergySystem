@@ -49,6 +49,7 @@ public class RetailerAgent extends Agent {
 	private class RequestProcessingServer extends CyclicBehaviour {
 		private int price;
 		private int qty;
+		private int discount;
 		
 		public void action () {
 			ACLMessage msg = receive();
@@ -66,6 +67,10 @@ public class RetailerAgent extends Agent {
 					// Create a propose reply message that content the price
 					Random rnd = new Random();
 					price = rnd.nextInt(81) + 20; // random number from 20 to 100
+					
+					//Discount one time
+					discount = (rnd.nextInt(11) + 90) / 100;
+					price = price * discount;					
 					
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.PROPOSE);
