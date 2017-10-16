@@ -190,16 +190,18 @@ public class HomeAgent extends Agent {
 								bestPrice = price;
 								bestRetailer = response.getSender();
 							}
-							System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
+							
 						}
 						responsesCnt++;
 						// Check if receive all responses
 						if (responsesCnt == retailerList.size()) {
 							if(fundings > usage *bestPrice) {
 								step = 3;
+								System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
 							}
 							else {
 								step = 2;
+								System.out.println("We don't have enough fundings( " + fundings + " ) to buy the power. Start a negotation.");
 							}
 						}
 
@@ -235,7 +237,7 @@ public class HomeAgent extends Agent {
 								bestPrice = price;
 								bestRetailer = response1.getSender();
 							}
-							System.out.println(getLocalName() + " received offer from " + response1.getSender().getLocalName() + " with price: " + response1.getContent());
+							
 						}
 						responsesCnt++;
 						// Check if receive all responses
@@ -243,9 +245,11 @@ public class HomeAgent extends Agent {
 							// Start the loop check
 							if(fundings > usage *bestPrice) {
 								step = 3;
+								System.out.println(getLocalName() + " received offer from " + response1.getSender().getLocalName() + " with price: " + response1.getContent());
 								}
 							else {
 								step = 2;
+								System.out.println("We don't have enough funding in " + fundings +" !Try negotation again. ");
 								}
 						}else {
 							System.out.println("the number of retailerList is not match");
