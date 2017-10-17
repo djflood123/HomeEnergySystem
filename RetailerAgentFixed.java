@@ -55,7 +55,9 @@ public class RetailerAgentFixed extends Agent {
 			ACLMessage msg = receive();
 			if (msg != null) {
 				// Check if receiving a subscription message
-				if (msg.getConversationId().equals("customer-subscription")) {
+				//Home agent should send message "energy-trade"
+				if (msg.getConversationId().equals("energy-trade")) {
+					//We add the sender(Home Agent) as a subscriber
 					subscribers.add(msg.getSender());
 				}
 				// Check if receiving a request message
@@ -82,10 +84,6 @@ public class RetailerAgentFixed extends Agent {
 					System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
 				}
 				
-				/**
-				 * Any further pricing strategies must be in separate functions
-				 * Then any interaction or message exchange in advance will go here
-				 */
 			}
 			else {
 				block();
