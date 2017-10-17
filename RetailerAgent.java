@@ -49,13 +49,15 @@ public class RetailerAgent extends Agent {
 	private class RequestProcessingServer extends CyclicBehaviour {
 		private int price;
 		private int qty;
-		private int discount;
+		private double discount;
 		
 		public void action () {
 			ACLMessage msg = receive();
 			if (msg != null) {
 				// Check if receiving a subscription message
-				if (msg.getConversationId().equals("customer-subscription")) {
+				//Home agent should send message "energy-trade"
+				if (msg.getConversationId().equals("energy-trade")) {
+					//We add the sender(Home Agent) as a subscriber
 					subscribers.add(msg.getSender());
 				}
 				// Check if receiving a request message
@@ -70,8 +72,9 @@ public class RetailerAgent extends Agent {
 					
 					//Discount one time
 					discount = (rnd.nextInt(11) + 90) / 100;
-					price = price * discount;					
+					price = (int) (price * discount);					
 					
+					//Send proposal back to home agent
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.PROPOSE);
 					reply.setContent(String.valueOf(price));
@@ -90,10 +93,6 @@ public class RetailerAgent extends Agent {
 					System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
 				}
 				
-				/**
-				 * Any further pricing strategies must be in separate functions
-				 * Then any interaction or message exchange in advance will go here
-				 */
 			}
 			else {
 				block();
