@@ -55,15 +55,9 @@ public class RetailerAgentFlexible extends Agent {
 		private double discount;
 		
 		public void action () {
-			//Initialise price outside of while loop
-			Random rnd = new Random();
-			price = rnd.nextInt(10) + 2;
 			ACLMessage msg = receive();
-			if (msg != null) {
-								
+			if (msg != null) {								
 				// Check if receiving a subscription message
-				//Home agent should send message "energy-trade" first, and then 
-				//if something happen, send"discount-energy-trade"
 				if (msg.getConversationId().equals("energy-trade")) {
 					//We add the sender(Home Agent) as a subscriber
 					subscribers.add(msg.getSender());
@@ -73,7 +67,10 @@ public class RetailerAgentFlexible extends Agent {
 					qty = Integer.parseInt(msg.getContent());
 					
 					System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
-															
+					
+					Random rnd = new Random();
+					price = rnd.nextInt(8) + 2;
+					
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.PROPOSE);
 					reply.setContent(String.valueOf(price));
@@ -99,6 +96,7 @@ public class RetailerAgentFlexible extends Agent {
 					ACLMessage replyfornegotation = msg.createReply();
 					replyfornegotation.setPerformative(ACLMessage.AGREE);
 					
+					//new price with discount (can change formula later)
 					price = (int) (price * 0.9);
 					
 					replyfornegotation.setContent(String.valueOf(price));
