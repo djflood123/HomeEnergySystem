@@ -263,6 +263,11 @@ public class HomeAgent extends Agent {
 						}else {
 							System.out.println("the number of retailerList is not match");
 							}
+						}else {
+							
+							System.out.println("the negotation has some error, try negotation again");
+							step = 2;
+							responsesCnt =0;
 						}
 							
 				case 3:
