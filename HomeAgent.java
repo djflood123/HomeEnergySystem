@@ -197,11 +197,13 @@ public class HomeAgent extends Agent {
 						if (responsesCnt == retailerList.size()) {
 							if(fundings > usage *bestPrice) {
 								step = 3;
-								System.out.println(getLocalName() + " received offer from " + response.getSender().getLocalName() + " with price: " + response.getContent());
+								System.out.println(getLocalName() + " received offer from " + bestRetailer.getLocalName() + " with price: " + bestPrice);
+								responsesCnt = 0;
 							}
 							else {
 								step = 2;
 								System.out.println("We don't have enough fundings( " + fundings + " ) to buy the power. Start a negotation.");
+								responsesCnt = 0;
 							}
 						}
 
@@ -250,12 +252,14 @@ public class HomeAgent extends Agent {
 							// Start the loop check
 							if(fundings > usage *bestPrice) {
 								step = 3;
-								System.out.println(getLocalName() + " received offer from " + response1.getSender().getLocalName() + " with price: " + response1.getContent());
-								}
+								System.out.println(getLocalName() + " received offer from " + bestRetailer.getLocalName() + " with price: " + bestPrice);
+								responsesCnt =0;
+							}
 							else {
 								step = 2;
 								System.out.println("We don't have enough funding in " + fundings +" !Try negotation again. ");
-								}
+								responsesCnt =0;
+							}
 						}else {
 							System.out.println("the number of retailerList is not match");
 							}
@@ -272,7 +276,7 @@ public class HomeAgent extends Agent {
 					// Set a new template to get the purchase order reply
 					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"), 
 											MessageTemplate.MatchInReplyTo(order.getReplyWith()));
-					step = 3;
+					step = 4;
 					
 					System.out.println(getLocalName() + " accept the offer of " + bestRetailer.getLocalName());
 
@@ -287,6 +291,7 @@ public class HomeAgent extends Agent {
 							System.out.println(buyingQty + " energy units have been successfully bought from " + response.getSender().getName());
 							System.out.println("Paid " + response.getContent());
 							fundings -=  Integer.parseInt(response.getContent()) ;
+							System.out.println("funding pool only: "+ fundings + " left.");
 						}
 						step = 5;
 					}
@@ -351,6 +356,7 @@ public class HomeAgent extends Agent {
 					if (responsesCnt == retailerList.size()) {
 						// Start the next step
 						step = 2;
+						responsesCnt=0;
 					}
 					
 					
