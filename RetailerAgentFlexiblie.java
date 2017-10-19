@@ -82,9 +82,7 @@ public class RetailerAgentFlexible extends Agent {
 					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
 				
-				
-				
-				
+								
 				/*deal with energy-trade-discount
 				 * implement the function to handle ACLMessage.Request
 				 *   Give feedback with AGREE and price 
@@ -92,38 +90,23 @@ public class RetailerAgentFlexible extends Agent {
 				 *   
 				 *   * /
 				 */
-				
-				
-				
-				
-				//Check if proposal is NOT accepted
-				//If yes, send message back to home agent asking to enter new offer
-				while (msg.getPerformative() != ACLMessage.ACCEPT_PROPOSAL) {
-					System.out.println(getLocalName() + " rejected offer from " + msg.getSender().getName());			
+				if (msg.getPerformative() == ACLMessage.REQUEST) {
 					
-					//Every time the offer is not accepted, a 1-10% discount is given
-					discount = (rnd.nextInt(11) + 90) / 100;
-					price = (int) (price * discount);
+					System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
 					
-					//if price is greater than zero(can change later) then we agree, if not we refuse
-					if (price <= 0) {
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(ACLMessage.REFUSE);
-					} else {
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(ACLMessage.AGREE);
-					}
+					//do some with it	
+					//Send proposal back to home agent
+					ACLMessage replyfornegotation = msg.createReply();
+					replyfornegotation.setPerformative(ACLMessage.AGREE);
 					
-					//Send new proposal back to home agent
-					//If home agent accepts, the while loop will end
-					ACLMessage reply = msg.createReply();
-					reply.setPerformative(ACLMessage.PROPOSE);
-					reply.setContent(String.valueOf(price));
-					myAgent.send(reply);
+					price = (int) (price * 0.9);
 					
-					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
+					replyfornegotation.setContent(String.valueOf(price));
+					myAgent.send(replyfornegotation);
+					
+					System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
 				}
-												
+																
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
