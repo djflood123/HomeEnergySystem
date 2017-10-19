@@ -2,5 +2,5 @@
 -container -agents App4:Project.PowerAgent("Home");
 -container -agents Retailer1:Project.RetailerAgent("Melbourne Electricity");
 -container -agents Retailer2:Project.RetailerAgentFixed("Premium Electricity");
--container -agents Retailer3:Project.RetailerAgentFlexiblie("Clean Energy");
--container -agents App1:Project.ApplicationAgent("Computer");App2:Project.ApplicationAgent("Lamp");App3:Project.ApplicationAgent("Heater");
+-container -agents Retailer3:Project.RetailerAgentFlexible("Clean Energy");
+-container -agents App1:Project.ApplicationAgent("Home");App2:Project.ApplicationAgent("Home");App3:Project.ApplicationAgent("Home");
