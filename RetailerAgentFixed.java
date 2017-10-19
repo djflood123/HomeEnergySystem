@@ -73,6 +73,18 @@ public class RetailerAgentFixed extends Agent {
 					
 					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
+				
+				/*
+				 * implement the function to handle ACLMessage.Request
+				 *   Give feedback with AGREE and price 
+				 *   or give feedback with REFUSE 
+				 *   
+				 *   * /
+				 */
+				
+				
+				
+				
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
