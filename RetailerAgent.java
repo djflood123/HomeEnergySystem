@@ -49,7 +49,6 @@ public class RetailerAgent extends Agent {
 	private class RequestProcessingServer extends CyclicBehaviour {
 		private int price;
 		private int qty;
-		private double discount;
 		
 		public void action () {
 			ACLMessage msg = receive();
