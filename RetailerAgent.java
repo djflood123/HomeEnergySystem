@@ -86,15 +86,14 @@ public class RetailerAgent extends Agent {
 					
 					System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
 					
-					//Discount one time
 					//do some with it	
 					//Send proposal back to home agent
 					ACLMessage replyfornegotation = msg.createReply();
-					replyfornegotation.setPerformative(ACLMessage.AGREE);   //this one gives a discount, so it write agree, otherwise just write 'REFUSE'
-					replyfornegotation.setContent(String.valueOf(price));
+					replyfornegotation.setPerformative(ACLMessage.REFUSE);   //this one gives a discount, so it write agree, otherwise just write 'REFUSE'
+					//replyfornegotation.setContent(String.valueOf(price));
 					myAgent.send(replyfornegotation);
 					
-					System.out.println(getLocalName() + " sent better offer price: " + price + " to " + msg.getSender().getName());
+					System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
 				}
 				
 				
