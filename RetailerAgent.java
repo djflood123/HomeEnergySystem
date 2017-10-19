@@ -68,11 +68,9 @@ public class RetailerAgent extends Agent {
 					
 					// Create a propose reply message that content the price
 					Random rnd = new Random();
-					price = rnd.nextInt(81) + 20; // random number from 20 to 100
+					price = rnd.nextInt(8) + 2; // random number from 20 to 100
 					
-					//Discount one time
-					discount = (rnd.nextInt(11) + 90) / 100;
-					price = (int) (price * discount);					
+									
 					
 					//Send proposal back to home agent
 					ACLMessage reply = msg.createReply();
@@ -82,6 +80,26 @@ public class RetailerAgent extends Agent {
 					
 					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
+				
+				// CHECK IF receive a discount negotation 
+				if (msg.getPerformative() == ACLMessage.REQUEST) {
+					
+					System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
+					
+					//Discount one time
+					//do some with it	
+					//Send proposal back to home agent
+					ACLMessage replyfornegotation = msg.createReply();
+					replyfornegotation.setPerformative(ACLMessage.AGREE);   //this one gives a discount, so it write agree, otherwise just write 'REFUSE'
+					replyfornegotation.setContent(String.valueOf(price));
+					myAgent.send(replyfornegotation);
+					
+					System.out.println(getLocalName() + " sent better offer price: " + price + " to " + msg.getSender().getName());
+				}
+				
+				
+				
+				
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {

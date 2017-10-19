@@ -25,7 +25,7 @@ import jade.lang.acl.MessageTemplate;
 public class HomeAgent extends Agent {
 	private Map<AID, String> retailerList = new HashMap<AID, String>();
 	private int usage;
-	private int fundings = 3000;
+	private int fundings = 1000;
 	
 	protected void setup () {
 		
@@ -269,7 +269,7 @@ public class HomeAgent extends Agent {
 							step = 2;
 							responsesCnt =0;
 						}
-							
+						break;
 				case 3:
 					// Send the purchase order to the best retailer
 					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);

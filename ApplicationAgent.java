@@ -18,7 +18,7 @@ public class ApplicationAgent extends Agent {
 		addBehaviour(new TickerBehaviour(this, 10000) {
 			protected void onTick() {
 				Random rnd = new Random();
-				powerUsage = rnd.nextInt(81) + 20;
+				powerUsage = rnd.nextInt(5) + 2;
 				powerGenerated = 0;
 				
 				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);

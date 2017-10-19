@@ -18,7 +18,7 @@ public class PowerAgent extends Agent {
 		addBehaviour(new TickerBehaviour(this, 10000) {
 			protected void onTick() {
 				Random rnd = new Random();
-				powerGenerated = rnd.nextInt(151) + 0;
+				powerGenerated = rnd.nextInt(10) + 1;
 				
 				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 				msg.addReceiver(new AID(args[0].toString(), AID.ISLOCALNAME));
