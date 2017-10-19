@@ -7,6 +7,7 @@ import jade.domain.FIPAAgentManagement.*;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.core.behaviours.CyclicBehaviour;
+
 import java.util.*;
 /**
  * This retailer agent register for service (selling energy) in DF agent
@@ -14,7 +15,7 @@ import java.util.*;
  * And http://jade.tilab.com/doc/tutorials/JADEProgramming-Tutorial-for-beginners.pdf
  **/
 
-public class RetailerAgentFixed extends Agent {
+public class RetailerAgentFlexible extends Agent {
 	private String serviceName = "";
 	private List<AID> subscribers = new ArrayList<AID> ();
 	
@@ -47,15 +48,22 @@ public class RetailerAgentFixed extends Agent {
 	}
 	
 	private class RequestProcessingServer extends CyclicBehaviour {
-		//price is a constant, as it is "fixed"
-		private final int price = 100;
+		
+		//TODO get price entered from user
+		private int price;
 		private int qty;
+		private double discount;
 		
 		public void action () {
+			//Initialise price outside of while loop
+			Random rnd = new Random();
+			price = rnd.nextInt(10) + 2;
 			ACLMessage msg = receive();
 			if (msg != null) {
+								
 				// Check if receiving a subscription message
-				//Home agent should send message "energy-trade"
+				//Home agent should send message "energy-trade" first, and then 
+				//if something happen, send"discount-energy-trade"
 				if (msg.getConversationId().equals("energy-trade")) {
 					//We add the sender(Home Agent) as a subscriber
 					subscribers.add(msg.getSender());
@@ -65,7 +73,7 @@ public class RetailerAgentFixed extends Agent {
 					qty = Integer.parseInt(msg.getContent());
 					
 					System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
-					
+															
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.PROPOSE);
 					reply.setContent(String.valueOf(price));
@@ -74,17 +82,31 @@ public class RetailerAgentFixed extends Agent {
 					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
 				
-				/*
+								
+				/*deal with energy-trade-discount
 				 * implement the function to handle ACLMessage.Request
 				 *   Give feedback with AGREE and price 
 				 *   or give feedback with REFUSE 
 				 *   
 				 *   * /
 				 */
-				
-				
-				
-				
+				if (msg.getPerformative() == ACLMessage.REQUEST) {
+					
+					System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
+					
+					//do some with it	
+					//Send proposal back to home agent
+					ACLMessage replyfornegotation = msg.createReply();
+					replyfornegotation.setPerformative(ACLMessage.AGREE);
+					
+					price = (int) (price * 0.9);
+					
+					replyfornegotation.setContent(String.valueOf(price));
+					myAgent.send(replyfornegotation);
+					
+					System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
+				}
+																
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
@@ -95,6 +117,7 @@ public class RetailerAgentFixed extends Agent {
 					myAgent.send(confirm);
 					System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
 				}
+				
 				
 			}
 			else {
