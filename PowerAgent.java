@@ -18,12 +18,12 @@ public class PowerAgent extends Agent {
 		addBehaviour(new TickerBehaviour(this, 10000) {
 			protected void onTick() {
 				Random rnd = new Random();
-				powerGenerated = rnd.nextInt(10) + 1;
+				powerGenerated = 4;
 				
 				ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 				msg.addReceiver(new AID(args[0].toString(), AID.ISLOCALNAME));
 				msg.setContent(String.valueOf(powerGenerated));
-				msg.setConversationId("application-Generation");
+				msg.setConversationId("application-generation");
 				send(msg);
 				
 				System.out.println(getLocalName() + " sent power Generation to " + args[0].toString());

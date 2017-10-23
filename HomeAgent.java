@@ -25,10 +25,15 @@ import jade.lang.acl.MessageTemplate;
 public class HomeAgent extends Agent {
 	private Map<AID, String> retailerList = new HashMap<AID, String>();
 	private int usage;
-	private int fundings = 1000;
+	private int fundings;
+	private int tradeUpdate;
 	
 	protected void setup () {
-		
+		Object[] args = getArguments();
+		String fundingsString = args[0].toString();
+		fundings = Integer.parseInt(fundingsString);
+		String tradeUpdateString = args[1].toString();
+		tradeUpdate = Integer.parseInt(tradeUpdateString);
 		String serviceName = "energy-selling";
 		
 		// Build the description used as template for the subscription
@@ -96,11 +101,11 @@ public class HomeAgent extends Agent {
 						// We  now got 4 application agents, so we check if we get all the usage from 4 agents or not
 						// Which are 3 usage and 1 generation
 						// If yes, then the next time usage will be reset
-						if (appCnt == 3) {
+						/*if (appCnt == 3) {
 							appCnt = 0;
 							usage = 0;
-						}
-						System.out.println(msg.getSender().getLocalName() + " " + msg.getContent());
+						}*/
+						System.out.println(msg.getSender().getLocalName() + " used " + msg.getContent() + " units of power");
 						usage += Integer.parseInt(msg.getContent());
 						appCnt++;
 					}
@@ -130,13 +135,15 @@ public class HomeAgent extends Agent {
 		});
 		
 		// Start an energy buying process every 15s
-		addBehaviour(new TickerBehaviour(this, 15000) {
+		addBehaviour(new TickerBehaviour(this, tradeUpdate) {
 			protected void onTick() {
 				if (!retailerList.isEmpty()) {
 					if(usage >0){
 						myAgent.addBehaviour(new StartBuyingRequest());
+						usage = 0;
 					}else{
 						myAgent.addBehaviour(new StartSellingRequest());
+						usage = 0;
 					}
 				}
 				else {

@@ -17,10 +17,13 @@ import java.util.*;
 public class RetailerAgentFixed extends Agent {
 	private String serviceName = "";
 	private List<AID> subscribers = new ArrayList<AID> ();
+	private int price;
 	
 	protected void setup () {
 		Object[] args = getArguments();
 		serviceName = args[0].toString();
+		String PriceString = args[1].toString();
+		price = Integer.parseInt(PriceString);
 
 		// Description of service to be registered
 		ServiceDescription sd = new ServiceDescription();
@@ -47,8 +50,6 @@ public class RetailerAgentFixed extends Agent {
 	}
 	
 	private class RequestProcessingServer extends CyclicBehaviour {
-		//price is a constant, as it is "fixed"
-		private final int price = 5;
 		private int qty;
 		
 		public void action () {
@@ -64,7 +65,7 @@ public class RetailerAgentFixed extends Agent {
 				if (msg.getPerformative() == ACLMessage.CFP) {
 					qty = Integer.parseInt(msg.getContent());
 					
-					System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
+					//System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
 					
 					ACLMessage reply = msg.createReply();
 					reply.setPerformative(ACLMessage.PROPOSE);

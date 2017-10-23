@@ -17,10 +17,15 @@ import java.util.*;
 public class RetailerAgent extends Agent {
 	private String serviceName = "";
 	private List<AID> subscribers = new ArrayList<AID> ();
-	
+	private int minPrice;
+	private int maxPrice;
 	protected void setup () {
 		Object[] args = getArguments();
 		serviceName = args[0].toString();
+		String minPriceString = args[1].toString();
+		minPrice = Integer.parseInt(minPriceString);
+		String maxPriceString = args[2].toString();
+		maxPrice = Integer.parseInt(maxPriceString);
 
 		// Description of service to be registered
 		ServiceDescription sd = new ServiceDescription();
@@ -63,11 +68,11 @@ public class RetailerAgent extends Agent {
 				if (msg.getPerformative() == ACLMessage.CFP) {
 					qty = Integer.parseInt(msg.getContent());
 					
-					System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
+					//System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
 					
 					// Create a propose reply message that content the price
 					Random rnd = new Random();
-					price = rnd.nextInt(8) + 2; // random number from 20 to 100
+					price = rnd.nextInt(maxPrice - minPrice + 1) + minPrice; // random number from 20 to 100
 					
 									
 					
