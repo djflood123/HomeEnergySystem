@@ -96,7 +96,7 @@ public class HomeAgent extends Agent {
 						// We  now got 4 application agents, so we check if we get all the usage from 4 agents or not
 						// Which are 3 usage and 1 generation
 						// If yes, then the next time usage will be reset
-						if (appCnt == 4) {
+						if (appCnt == 3) {
 							appCnt = 0;
 							usage = 0;
 						}
@@ -104,16 +104,16 @@ public class HomeAgent extends Agent {
 						usage += Integer.parseInt(msg.getContent());
 						appCnt++;
 					}
-					else if (msg.getConversationId().equals("application-generation")) {
-
-						if (appCnt == 4) {
-							appCnt = 0;
-							usage = 0;
-						}
-						System.out.println(msg.getSender().getLocalName() + " " + msg.getContent());
-						usage -= Integer.parseInt(msg.getContent());
-						appCnt++;
-					}
+//					else if (msg.getConversationId().equals("application-generation")) {
+//
+//						if (appCnt == 4) {
+//							appCnt = 0;
+//							usage = 0;
+//						}
+//						System.out.println(msg.getSender().getLocalName() + " " + msg.getContent());
+//						usage -= Integer.parseInt(msg.getContent());
+//						appCnt++;
+//					}
 					else {
 						// This case must be the termination message from retailer agents
 						// Remove the sender retailer from list
