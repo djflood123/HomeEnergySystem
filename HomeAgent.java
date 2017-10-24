@@ -151,6 +151,14 @@ public class HomeAgent extends Agent {
 				}
 			}
 		});
+		
+		// Earn the setting income every 1 minute
+		addBehaviour(new TickerBehaviour(this, 60000) {
+			protected void onTick() {
+				fundings += Integer.parseInt(fundingsString); 
+				System.out.println("Monthly income has arrived. Earned: " + fundings);
+			}
+		});
 	}
 	
 	// This class handle the whole buying request process
