@@ -186,6 +186,7 @@ public class HomeAgent extends Agent {
 						// Response received
 						if(response.getPerformative() == ACLMessage.PROPOSE) {
 							// Extract this offer information
+							System.out.println(response.getSender().getLocalName() + " offer price: " + response.getContent());
 							int price = Integer.parseInt(response.getContent());
                             if(bestRetailer == null && bestPrice==0){
                                 bestPrice = price;
@@ -246,11 +247,11 @@ public class HomeAgent extends Agent {
 								bestPrice = price;
 								bestRetailer = response1.getSender();
 							}
-							System.out.println("a agreement received:" + response1.getSender().getLocalName() + " with the price - " + price);
+							System.out.println("a agreement received:" + response1.getSender().getLocalName() + " with the price is " + price);
 						}
 						
 						if(response1.getPerformative() == ACLMessage.REFUSE) {
-							System.out.println("a DISagreement received:" + response1.getSender().getLocalName() );
+							System.out.println("a disagreement received:" + response1.getSender().getLocalName());
 						}
 						
 						responsesCnt++;
@@ -273,7 +274,7 @@ public class HomeAgent extends Agent {
 							
 							System.out.println("the negotation has some error, try negotation again");
 							step = 2;
-							responsesCnt =0;
+							block();
 						}
 						break;
 				case 3:

@@ -72,7 +72,7 @@ public class RetailerAgentFixed extends Agent {
 					reply.setContent(String.valueOf(price));
 					myAgent.send(reply);
 					
-					System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
+					//System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
 				
 				/*
@@ -85,28 +85,31 @@ public class RetailerAgentFixed extends Agent {
 				
 				if (msg.getPerformative() == ACLMessage.REQUEST) {
 					
-					System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
+					//System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
 					
 					//do some with it	
 					//Send proposal back to home agent
 					ACLMessage replyfornegotation = msg.createReply();
 					replyfornegotation.setPerformative(ACLMessage.REFUSE);
-					//replyfornegotation.setContent(String.valueOf(price));
+					replyfornegotation.setContent(String.valueOf(price));
 					myAgent.send(replyfornegotation);
 					
-					System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
+					//System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
 				}
 				
 				
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
-					System.out.println(getLocalName() + " received accept offer from " + msg.getSender().getName());
+					
+					//System.out.println(getLocalName() + " received accept offer from " + msg.getSender().getName());
+					
 					ACLMessage confirm = msg.createReply();
 					confirm.setPerformative(ACLMessage.CONFIRM);
 					confirm.setContent(String.valueOf(price * qty));
 					myAgent.send(confirm);
-					System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
+					
+					//System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
 				}
 				
 			}
