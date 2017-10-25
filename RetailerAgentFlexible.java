@@ -58,7 +58,6 @@ public class RetailerAgentFlexible extends Agent {
 		//TODO get price entered from user
 		private int price;
 		private int qty;
-		private double discount;
 		
 		public void action () {
 			ACLMessage msg = receive();
@@ -104,6 +103,9 @@ public class RetailerAgentFlexible extends Agent {
 					
 					//new price with discount (can change formula later)
 					price = (int) (price * 0.9);
+					if (price == 0) {
+						price = 1;
+					}
 					
 					replyfornegotation.setContent(String.valueOf(price));
 					myAgent.send(replyfornegotation);
