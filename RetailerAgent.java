@@ -74,7 +74,12 @@ public class RetailerAgent extends Agent {
 					Random rnd = new Random();
 					price = rnd.nextInt(maxPrice - minPrice + 1) + minPrice; // random number from 20 to 100
 					
-									
+					//Give a discount between 5-10%
+					double discount;
+					discount = (rnd.nextInt(5) + 90);
+					discount = discount/100;
+					
+					price = (int) (price * discount);					
 					
 					//Send proposal back to home agent
 					ACLMessage reply = msg.createReply();
