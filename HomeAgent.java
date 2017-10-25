@@ -263,14 +263,13 @@ public class HomeAgent extends Agent {
 								responsesCnt =0;
 							}
 							else {
-								step = 2;
-								System.out.println("We don't have enough funding in " + fundings +" !Try negotation again. ");
+								step = 5;
+								System.out.println("We don't have enough funding in " + fundings +" The negotation is unsuccessful. ");
 								responsesCnt =0;
 							}
-						}else {
-							System.out.println("the number of retailerList is not match");
-							}
-						}else {
+						}
+						
+					}else {
 							
 							System.out.println("the negotation has some error, try negotation again");
 							step = 2;
