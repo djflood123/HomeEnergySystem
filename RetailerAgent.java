@@ -54,6 +54,7 @@ public class RetailerAgent extends Agent {
 	private class RequestProcessingServer extends CyclicBehaviour {
 		private int price;
 		private int qty;
+		private int discount = 0;
 		
 		public void action () {
 			ACLMessage msg = receive();
@@ -67,19 +68,11 @@ public class RetailerAgent extends Agent {
 				// Check if receiving a request message
 				if (msg.getPerformative() == ACLMessage.CFP) {
 					qty = Integer.parseInt(msg.getContent());
-					
-					//System.out.println(getLocalName() + " received request message from " + msg.getSender().getName());
-					
+										
 					// Create a propose reply message that content the price
 					Random rnd = new Random();
-					price = rnd.nextInt(maxPrice - minPrice + 1) + minPrice; // random number from 20 to 100
-					
-					//Give a discount between 5-10%
-					double discount;
-					discount = (rnd.nextInt(5) + 90);
-					discount = discount/100;
-					
-					price = (int) (price * discount);					
+					price = rnd.nextInt(maxPrice - minPrice + 1) + minPrice; // random number from 20 to 100				
+					discount = price;
 					
 					//Send proposal back to home agent
 					ACLMessage reply = msg.createReply();
@@ -87,36 +80,33 @@ public class RetailerAgent extends Agent {
 					reply.setContent(String.valueOf(price));
 					myAgent.send(reply);
 					
-					//System.out.println(getLocalName() + " sent offer price: " + price + " to " + msg.getSender().getName());
 				}
 				
-				// CHECK IF receive a discount negotation 
+				// CHECK IF receive a discount request 
 				if (msg.getPerformative() == ACLMessage.REQUEST) {
 					
-					//System.out.println(getLocalName() + " received negotation request message for better price from " + msg.getSender().getName());
-					
-					//do some with it	
 					//Send proposal back to home agent
-					ACLMessage replyfornegotation = msg.createReply();
-					replyfornegotation.setPerformative(ACLMessage.REFUSE);   //this one gives a discount, so it write agree, otherwise just write 'REFUSE'
-					replyfornegotation.setContent(String.valueOf(price));
-					myAgent.send(replyfornegotation);
+					ACLMessage replyForDiscount = msg.createReply();
 					
-					//System.out.println(getLocalName() + " sent price: " + price + " to " + msg.getSender().getName());
+					// Discount only once for every cycle (20% off)
+					if (discount == price) {
+						discount = (int) (discount * 0.8);
+						replyForDiscount.setPerformative(ACLMessage.AGREE); // Set performative to AGREE when discount
+					} else {
+						replyForDiscount.setPerformative(ACLMessage.REFUSE); // Set performative to REFUSE when not discount
+					}
+					
+					replyForDiscount.setContent(String.valueOf(discount));
+					myAgent.send(replyForDiscount);
 				}
-				
-				
-				
 				
 				// Check if receiving a accept message
 				// If yes, then reply with a confirmation
 				if (msg.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
-					//System.out.println(getLocalName() + " received accept offer from " + msg.getSender().getName());
 					ACLMessage confirm = msg.createReply();
 					confirm.setPerformative(ACLMessage.CONFIRM);
-					confirm.setContent(String.valueOf(price * qty));
+					confirm.setContent(String.valueOf(discount * qty)); // If discount is request, then use discount. Else discount will be equal to price
 					myAgent.send(confirm);
-					//System.out.println(getLocalName() + " sent purchase confirm message to " + msg.getSender().getName());
 				}
 				
 			}
