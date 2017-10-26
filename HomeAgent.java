@@ -27,6 +27,9 @@ public class HomeAgent extends Agent {
 	private int usage;
 	private int fundings;
 	private int tradeUpdate;
+	private int monthlyIncomeMin;
+	private int monthlyIncomeMax;
+	private int monthlyIncomeUpdate;
 	
 	protected void setup () {
 		Object[] args = getArguments();
@@ -34,6 +37,14 @@ public class HomeAgent extends Agent {
 		fundings = Integer.parseInt(fundingsString);
 		String tradeUpdateString = args[1].toString();
 		tradeUpdate = Integer.parseInt(tradeUpdateString);
+		
+		String monthlyIncomeMinString = args[2].toString();
+		monthlyIncomeMin = Integer.parseInt(monthlyIncomeMinString);
+		String monthlyIncomeMaxString = args[3].toString();
+		monthlyIncomeMax = Integer.parseInt(monthlyIncomeMaxString);
+		String monthlyIncomeUpdateString = args[4].toString();
+		monthlyIncomeUpdate = Integer.parseInt(monthlyIncomeUpdateString);
+		
 		String serviceName = "energy-selling";
 		
 		// Build the description used as template for the subscription
@@ -139,10 +150,12 @@ public class HomeAgent extends Agent {
 		});
 		
 		// Earn the setting income every 1 minute
-		addBehaviour(new TickerBehaviour(this, 60000) {
+		addBehaviour(new TickerBehaviour(this, monthlyIncomeUpdate) {
 			protected void onTick() {
-				fundings += Integer.parseInt(fundingsString); 
-				System.out.println("Monthly income has arrived. Earned: " + fundings);
+				Random rnd = new Random();
+				 int monthlyIncome = rnd.nextInt(monthlyIncomeMax - monthlyIncomeMin + 1) + monthlyIncomeMin;
+				fundings += monthlyIncome; 
+				System.out.println("Monthly income has arrived. You Earned : " + monthlyIncome +  ". You're new funding pool is : " + fundings);
 			}
 		});
 	}

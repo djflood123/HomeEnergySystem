@@ -29,6 +29,7 @@ import jade.wrapper.StaleProxyException;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
+import jade.util.ExtendedProperties;
 import jade.core.behaviours.TickerBehaviour;
 import java.util.*;
 
@@ -63,21 +64,21 @@ public class SettingsGUI {
 	public String A1URL = "2";
 	public String A1URH = "20";
 	public Integer A1URF;
-	public String A1PU = "10000";
+	public String A1PU = "14500";
 	public String A2GRL = "2";
 	public String A2GRH = "20";
 	public Integer A2GRF;
 	public String A2URL = "2";
 	public String A2URH = "20";
 	public Integer A2URF;
-	public String A2PU = "10000";
+	public String A2PU = "14500";
 	public String A3GRL = "2";
 	public String A3GRH = "20";
 	public Integer A3GRF;
 	public String A3URL = "2";
 	public String A3URH = "20";
 	public Integer A3URF;
-	public String A3PU = "10000";
+	public String A3PU = "14500";
 	public String A1N = "Appliance 1";
 	public String A2N = "Appliance 2";
 	public String A3N = "Appliance 3";
@@ -99,12 +100,19 @@ public class SettingsGUI {
 	public String HIH = "1100";
 	public Integer HIF = 1;
 	public String HTU = "15000";
+	public String HIRL = "150";
+	public String HIRH = "300";
+	public String HIRU = "30000";
+	
 	private JTextField txtAppliance;
 	private JTextField txtAppliance_1;
 	private JTextField txtAppliance_2;
 	private JTextField txtRetailer;
 	private JTextField txtRetailer_1;
 	private JTextField txtRetailer_2;
+	private JTextField txtIncomemin;
+	private JTextField txtIncomemax;
+	private JTextField txtIncomeupdate;
 	
 
 	/**
@@ -135,7 +143,7 @@ public class SettingsGUI {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 714, 483);
+		frame.setBounds(100, 100, 714, 572);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -167,7 +175,7 @@ public class SettingsGUI {
 		
 		JButton btnStartHomeEnergy = new JButton("Start Home Energy Trading System");
 		btnStartHomeEnergy.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		btnStartHomeEnergy.setBounds(257, 326, 425, 104);
+		btnStartHomeEnergy.setBounds(257, 370, 425, 116);
 		frame.getContentPane().add(btnStartHomeEnergy);
 		btnStartHomeEnergy.addActionListener(new ActionListener()
 	    {
@@ -201,6 +209,10 @@ public class SettingsGUI {
 	    	  
 	    	  HTU = txtHomeTradeUpdate.getText();
 	    	  
+	    	  HIRL = txtIncomemin.getText();
+	    	  HIRH = txtIncomemax.getText();
+	    	  HIRU = txtIncomeupdate.getText();
+	    	  
 	    	  R1PH = txtRi_1.getText();
 	    	  R1PL = txtRi.getText();
 	    	  Random R1PR = new Random();
@@ -223,7 +235,7 @@ public class SettingsGUI {
 	    	  R2N = txtRetailer_1.getText();
 	    	  R3N = txtRetailer_2.getText();
 	    	  
-	    	  String[] argsMain = new String[22];
+	    	  String[] argsMain = new String[25];
 	    	  argsMain[0] = A1N.toString();
 	    	  argsMain[1] = A1URL.toString();
 	    	  argsMain[2] = A1PU;
@@ -250,10 +262,16 @@ public class SettingsGUI {
 	    	  argsMain[19] = A3URH.toString();
 	    	  argsMain[20] = R1PH.toString();
 	    	  argsMain[21] = R3PH.toString();
+	    	  argsMain[22] = HIRL.toString();
+	    	  argsMain[23] = HIRH.toString();
+	    	  argsMain[24] = HIRU.toString();
 	    	  
-	    	  String[] argsHome = new String[2];
+	    	  String[] argsHome = new String[5];
 	    	  argsHome[0] = HIF.toString();
 	    	  argsHome[1] = HTU;
+	    	  argsHome[2] = HIRL.toString();
+	    	  argsHome[3] = HIRH.toString();
+	    	  argsHome[4] = HIRU.toString();
 	    	  
 	    	  String[] argsApplication1 = new String[4];
 	    	  argsApplication1[0] = "Home";
@@ -298,9 +316,13 @@ public class SettingsGUI {
 	    	  pgui.frame.setVisible(true);
 	    	  frame.setVisible(false);
 	    	  
-		  	Runtime runtime = Runtime.instance();
-		       Profile profile = new ProfileImpl();
-		       profile.setParameter(Profile.GUI, "true");
+	    	  Runtime runtime = Runtime.instance();
+
+	          jade.util.leap.Properties prop = new ExtendedProperties();
+	          prop.setProperty(Profile.GUI, "true");
+	          prop.setProperty(Profile.NO_MTP,  "true");
+
+	          Profile profile = new ProfileImpl(prop);
 		       ContainerController containerController = runtime.createMainContainer(profile);
 
 		           AgentController homeController;
@@ -646,5 +668,41 @@ public class SettingsGUI {
 		txtRetailer_2.setColumns(10);
 		txtRetailer_2.setBounds(490, 239, 192, 22);
 		frame.getContentPane().add(txtRetailer_2);
+		
+		JLabel lblIncome = new JLabel("Monthly Income");
+		lblIncome.setFont(new Font("Tahoma", Font.BOLD, 13));
+		lblIncome.setBounds(17, 435, 169, 16);
+		frame.getContentPane().add(lblIncome);
+		
+		JLabel label_7 = new JLabel("MIN:");
+		label_7.setBounds(17, 450, 87, 16);
+		frame.getContentPane().add(label_7);
+		
+		txtIncomemin = new JTextField();
+		txtIncomemin.setText(HIRL);
+		txtIncomemin.setColumns(10);
+		txtIncomemin.setBounds(17, 464, 91, 22);
+		frame.getContentPane().add(txtIncomemin);
+		
+		JLabel label_9 = new JLabel("MAX:");
+		label_9.setBounds(118, 450, 87, 16);
+		frame.getContentPane().add(label_9);
+		
+		txtIncomemax = new JTextField();
+		txtIncomemax.setText(HIRH);
+		txtIncomemax.setColumns(10);
+		txtIncomemax.setBounds(118, 464, 91, 22);
+		frame.getContentPane().add(txtIncomemax);
+		
+		JLabel lblIncomeUpdate = new JLabel("Monthy Income Update");
+		lblIncomeUpdate.setFont(new Font("Tahoma", Font.BOLD, 13));
+		lblIncomeUpdate.setBounds(17, 487, 169, 16);
+		frame.getContentPane().add(lblIncomeUpdate);
+		
+		txtIncomeupdate = new JTextField();
+		txtIncomeupdate.setText(HIRU);
+		txtIncomeupdate.setColumns(10);
+		txtIncomeupdate.setBounds(17, 502, 192, 22);
+		frame.getContentPane().add(txtIncomeupdate);
 	}
 }

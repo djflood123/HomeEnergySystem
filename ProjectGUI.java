@@ -43,6 +43,9 @@ public class ProjectGUI {//extends Agent{
 	public String retailer1Name = "Retailer 1";
 	public String retailer2Name = "Retailer 2";
 	public String retailer3Name = "Retailer 3";
+	public String homeMinMonthlyIncome;
+	public String homeMaxMonthlyIncome;
+	public String homeMonthlyIncomeUpdate;
 	
 	protected void setup () {
 //		Object[] args = getArguments();
@@ -90,6 +93,9 @@ public class ProjectGUI {//extends Agent{
 		appliance3MaxUsageRate = argument[19];
 		retailer1MaxPrice = argument[20];
 		retailer3MaxPrice = argument[21];
+		homeMinMonthlyIncome = argument[22];
+		homeMaxMonthlyIncome = argument[23];
+		homeMonthlyIncomeUpdate = argument[24];
 	}
 	/**
 	 * Create the application.
@@ -103,17 +109,17 @@ public class ProjectGUI {//extends Agent{
 	 */
 	public void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 542, 516);
+		frame.setBounds(100, 100, 643, 516);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblHomeEnergySystem = new JLabel("Home Energy System");
 		lblHomeEnergySystem.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblHomeEnergySystem.setBounds(166, 13, 228, 25);
+		lblHomeEnergySystem.setBounds(201, 13, 228, 25);
 		frame.getContentPane().add(lblHomeEnergySystem);
 		
-		JLabel lblOurNames = new JLabel("Our Names");
-		lblOurNames.setBounds(203, 43, 169, 16);
+		JLabel lblOurNames = new JLabel("Trieu Hoang Nguyen, Qiyuan Zhu, Darcy Flood & Patrick Carty");
+		lblOurNames.setBounds(116, 42, 364, 16);
 		frame.getContentPane().add(lblOurNames);
 		
 		JLabel lblNewLabel = new JLabel(appliance1Name);
@@ -181,78 +187,78 @@ public class ProjectGUI {//extends Agent{
 		
 		JLabel lblHome = new JLabel("Home");
 		lblHome.setFont(new Font("Tahoma", Font.BOLD, 13));
-		lblHome.setBounds(251, 210, 56, 16);
+		lblHome.setBounds(272, 210, 56, 16);
 		frame.getContentPane().add(lblHome);
 		
 		JLabel lblIncome = new JLabel("Initial Income:");
-		lblIncome.setBounds(214, 239, 82, 16);
+		lblIncome.setBounds(235, 239, 82, 16);
 		frame.getContentPane().add(lblIncome);
 		
 		JLabel label_17 = new JLabel(homeIncome);
-		label_17.setBounds(304, 239, 56, 16);
+		label_17.setBounds(325, 239, 82, 16);
 		frame.getContentPane().add(label_17);
 		
 		JLabel lblTradeUpdate = new JLabel("Trade Update:");
-		lblTradeUpdate.setBounds(214, 261, 93, 16);
+		lblTradeUpdate.setBounds(235, 261, 93, 16);
 		frame.getContentPane().add(lblTradeUpdate);
 		
 		JLabel label_10 = new JLabel(homeTradeUpdate);
-		label_10.setBounds(304, 261, 56, 16);
+		label_10.setBounds(325, 261, 82, 16);
 		frame.getContentPane().add(label_10);
 		
 		JLabel lblRetailer = new JLabel(retailer1Name);
 		lblRetailer.setFont(new Font("Tahoma", Font.BOLD, 13));
-		lblRetailer.setBounds(369, 84, 147, 16);
+		lblRetailer.setBounds(444, 84, 147, 16);
 		frame.getContentPane().add(lblRetailer);
 		
 		JLabel label_20 = new JLabel(retailer1MinPrice);
-		label_20.setBounds(482, 113, 56, 16);
+		label_20.setBounds(557, 113, 56, 16);
 		frame.getContentPane().add(label_20);
 		
 		JLabel lblPrice = new JLabel("Min Price:");
-		lblPrice.setBounds(372, 113, 113, 16);
+		lblPrice.setBounds(447, 113, 113, 16);
 		frame.getContentPane().add(lblPrice);
 		
 		JLabel lblRetailer_1 = new JLabel(retailer2Name);
 		lblRetailer_1.setFont(new Font("Tahoma", Font.BOLD, 13));
-		lblRetailer_1.setBounds(372, 210, 144, 16);
+		lblRetailer_1.setBounds(447, 210, 144, 16);
 		frame.getContentPane().add(lblRetailer_1);
 		
 		JLabel lblFixedPrice = new JLabel("Fixed Price:");
-		lblFixedPrice.setBounds(372, 239, 113, 16);
+		lblFixedPrice.setBounds(447, 239, 113, 16);
 		frame.getContentPane().add(lblFixedPrice);
 		
 		JLabel label_23 = new JLabel(retailer2Price);
-		label_23.setBounds(482, 239, 56, 16);
+		label_23.setBounds(557, 239, 56, 16);
 		frame.getContentPane().add(label_23);
 		
 		JLabel lblRetailer_2 = new JLabel(retailer3Name);
 		lblRetailer_2.setFont(new Font("Tahoma", Font.BOLD, 13));
-		lblRetailer_2.setBounds(372, 344, 166, 16);
+		lblRetailer_2.setBounds(447, 344, 166, 16);
 		frame.getContentPane().add(lblRetailer_2);
 		
 		JLabel lblMinprice = new JLabel("Min Price:");
-		lblMinprice.setBounds(372, 375, 113, 16);
+		lblMinprice.setBounds(447, 375, 113, 16);
 		frame.getContentPane().add(lblMinprice);
 		
 		JLabel label_28 = new JLabel(retailer3MinPrice);
-		label_28.setBounds(482, 375, 56, 16);
+		label_28.setBounds(557, 375, 56, 16);
 		frame.getContentPane().add(label_28);
 		
 		JLabel lblMaxPrice = new JLabel("Max Price:");
-		lblMaxPrice.setBounds(372, 135, 113, 16);
+		lblMaxPrice.setBounds(447, 135, 113, 16);
 		frame.getContentPane().add(lblMaxPrice);
 		
 		JLabel lblRm = new JLabel(retailer1MaxPrice);
-		lblRm.setBounds(482, 135, 56, 16);
+		lblRm.setBounds(557, 135, 56, 16);
 		frame.getContentPane().add(lblRm);
 		
 		JLabel lblRm_1 = new JLabel(retailer3MaxPrice);
-		lblRm_1.setBounds(482, 395, 56, 16);
+		lblRm_1.setBounds(557, 395, 56, 16);
 		frame.getContentPane().add(lblRm_1);
 		
 		JLabel label_3 = new JLabel("Max Price:");
-		label_3.setBounds(372, 395, 113, 16);
+		label_3.setBounds(447, 395, 113, 16);
 		frame.getContentPane().add(label_3);
 		
 		JLabel lblMaxUsageRate = new JLabel("Max Usage Rate:");
@@ -278,5 +284,29 @@ public class ProjectGUI {//extends Agent{
 		JLabel lblMaxUsageRate_2 = new JLabel("Max Usage Rate:");
 		lblMaxUsageRate_2.setBounds(12, 396, 113, 16);
 		frame.getContentPane().add(lblMaxUsageRate_2);
+		
+		JLabel lblMimi = new JLabel(homeMinMonthlyIncome);
+		lblMimi.setBounds(325, 284, 82, 16);
+		frame.getContentPane().add(lblMimi);
+		
+		JLabel lblMinMonthlyIncome = new JLabel("Min Monthly Income:");
+		lblMinMonthlyIncome.setBounds(198, 284, 119, 16);
+		frame.getContentPane().add(lblMinMonthlyIncome);
+		
+		JLabel lblMiu = new JLabel(homeMonthlyIncomeUpdate);
+		lblMiu.setBounds(325, 328, 82, 16);
+		frame.getContentPane().add(lblMiu);
+		
+		JLabel lblMonthlyIncomeUpdate = new JLabel("Monthly Income Update:");
+		lblMonthlyIncomeUpdate.setBounds(178, 328, 139, 16);
+		frame.getContentPane().add(lblMonthlyIncomeUpdate);
+		
+		JLabel lblMami = new JLabel(homeMaxMonthlyIncome);
+		lblMami.setBounds(325, 305, 82, 16);
+		frame.getContentPane().add(lblMami);
+		
+		JLabel lblMaxMonthlyIncome = new JLabel("Max Monthly Income:");
+		lblMaxMonthlyIncome.setBounds(198, 305, 130, 16);
+		frame.getContentPane().add(lblMaxMonthlyIncome);
 	}
 }
