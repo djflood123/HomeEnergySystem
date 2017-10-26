@@ -155,6 +155,7 @@ public class HomeAgent extends Agent {
 		private MessageTemplate mt;
 		private int step = 0;
 		private int buyingQty = usage;
+		private int requestCnt = 0;
 		
 		public void action() {
 			//now we have a funding check, if fundings higher than 1000, it will keep the regular buy, but if not
@@ -204,7 +205,7 @@ public class HomeAgent extends Agent {
 						// Check if receive all responses
 						if (responsesCnt == retailerList.size()) {
 							if(fundings > usage *bestPrice) {
-								step = 3;
+								step = 4;
 								System.out.println(getLocalName() + " received offer from " + bestRetailer.getLocalName() + " with price: " + bestPrice);
 								responsesCnt = 0;
 							}
@@ -236,6 +237,10 @@ public class HomeAgent extends Agent {
 					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("discount-energy-trade"),
 											MessageTemplate.MatchInReplyTo(cfpMsg1.getReplyWith())); // detect different retailers' reply by unique generated value before with time stamp
 					
+					step = 3;
+						break;
+				case 3:
+					
 					ACLMessage response1 = myAgent.receive(mt);
 					if (response1 != null) {
 						// Response received
@@ -259,25 +264,34 @@ public class HomeAgent extends Agent {
 						if (responsesCnt == retailerList.size()) {
 							// Start the loop check
 							if(fundings > usage *bestPrice) {
-								step = 3;
+								step = 4;
 								System.out.println(getLocalName() + " received offer from " + bestRetailer.getLocalName() + " with price: " + bestPrice);
 								responsesCnt =0;
 							}
 							else {
-								step = 5;
-								System.out.println("We don't have enough funding in " + fundings +" The negotation is unsuccessful. ");
-								responsesCnt =0;
+								//if we still cannot buy, we start new negotiation until we try 3 times.
+								if(requestCnt <3){
+									System.out.println("The price is not acceptable, we try "+ (3-requestCnt)+" more round of negotiation now.");
+									requestCnt++;
+									responsesCnt =0;
+									step =2;
+								}else{
+									System.out.println("The negotation is unsuccessful. Our funding: "+fundings+" left. ");
+									responsesCnt =0;
+									requestCnt =0;
+									step = 6;
+								}
+								
+								
 							}
 						}
 						
 					}else {
-							
-							System.out.println("the negotation has some error, try negotation again");
-							step = 2;
-							block();
-						}
-						break;
-				case 3:
+						block();
+					}
+					
+					break;
+				case 4:
 					// Send the purchase order to the best retailer
 					ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 					order.addReceiver(bestRetailer);
@@ -288,12 +302,12 @@ public class HomeAgent extends Agent {
 					// Set a new template to get the purchase order reply
 					mt = MessageTemplate.and(MessageTemplate.MatchConversationId("energy-trade"), 
 											MessageTemplate.MatchInReplyTo(order.getReplyWith()));
-					step = 4;
+					step = 5;
 					
 					System.out.println(getLocalName() + " accept the offer of " + bestRetailer.getLocalName());
 
 					break;
-				case 4:
+				case 5:
 					// Receive the purchase confirmation from the retailer and finish the trade
 					response = myAgent.receive(mt);
 					if (response != null) {
@@ -305,7 +319,7 @@ public class HomeAgent extends Agent {
 							fundings -=  Integer.parseInt(response.getContent()) ;
 							System.out.println("funding pool only: "+ fundings + " left.");
 						}
-						step = 5;
+						step = 6;
 						usage = 0;
 					}
 					else {
@@ -317,7 +331,7 @@ public class HomeAgent extends Agent {
 		
 		@Override
 		public boolean done() {
-			return step == 5;
+			return step == 6;
 		}
 	}
 }
